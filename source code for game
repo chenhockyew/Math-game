@@ -1,0 +1,1127 @@
+#REMOVE REPEATED INITIALISATION!!!!!! #UPDATED!!!!!!!!
+#finished
+from replit import db
+import pandas as pd
+import time
+import random
+import sys
+import time
+from select import select
+lives = 3 #initialises lives
+level = 32 #initialise level
+score = 0 #initialise score
+questions = level #level #number of equations to solve(based on level)
+numlimit = 10 * level #limit of number value in questions
+numstart = 0 #start value of numbers possible to be used
+operations = 2 #used to set possible operators
+total_score = 0 #final score(will be displayed)
+mistakes = 0 #mistakes made(will be deducted from total_score)
+chance = 5 #used to set percentage chance of negative numbers
+answer = 99999999999999 #initialise answer > 9999999999 for loop
+timeout = 30#initialise timelimit
+name = ""
+QUIT = False #initialise QUIT to False, if True, game will end
+name_valid = False
+
+#GAME CODE---------------------------------------------------------------------------
+print("Welcome to MATH battle") #change to display in pygame
+print("For this game, enter the correct answer to the equations when prompted \"ENTER ANSWER: \"")
+play = input("Enter 1 to play(EASY) or 2 to play(HARD), any other character to decline: ") #play or not
+if play == "1" or play == "2":
+  
+  #USERNAME LOOP
+  while name_valid == False :
+    name = input("ENTER A USERNAME: ")
+    if name != "" :
+        try:
+            if name not in db["PLAYERS"]:
+                db["PLAYERS"].append(name) #add name to database
+                password = str(abs(int((((len(name)*11)-90)/2)*7))) #generate password
+                if len(str(password)) < 5:
+                  password = password + "1"*(5-len(str(password)))
+                elif len(str(password)) > 5:
+                  password = password[0:4]
+                print("Your password for {} is {}, PLEASE REMEMBER IT!".format(name,password))
+                break
+            else:
+                key = input("Please enter password: ")
+                password = str(abs(int((((len(name)*11)-90)/2)*7)))
+                if len(str(password)) < 5:
+                  password = password + "1"*(5-len(str(password)))
+                elif len(str(password)) > 5:
+                  password = password[0:4]
+                if key == password:
+                  print("Password Correct!")
+                  break
+                else:
+                    print("Password incorrect")
+        except:
+              db["PLAYERS"] = []
+              db["PLAYERS"].append(name) #add name to database
+              password = str(abs(int((((len(name)*11)-90)/2)*7))) #generate password
+              if len(password) < 5:
+                password = password + "1"*(5-len(str(password)))
+              elif len(password) > 5:
+                password = password[0:4]
+              print("Your password for {} is {}".format(name,password))
+              break
+    else:
+        print("PLEASE ENTER VALID USERNAME")
+  print("")#separate output
+  if play == "1": #requires calculator
+      print("Play starts soon.......") #informs user that game is starting soon
+      #add countdown graphics in pygame
+      print("PLAY starts soon (EASY MODE).....") #informs user/player of mode chosen
+      #add graphics in pygame
+    
+      #GAME LOOP
+      while True:
+          if lives == 0 or QUIT == True:
+              print("[!-GAME OVER-!]") #Game over
+              if lives == 0:
+                  print("DEATH by LACK of lives") #reason for game over
+              elif QUIT == True:
+                  print("USER QUIT")
+              break
+          #add sprites graphics and hp bars plus countdown
+  
+          #NUMLIMIT, CHANCES FOR NEGATIVE NUMBERS and timelimit
+          if level >= 31:
+              numlimit = 100000
+              questions = 5
+              timeout = 150
+          elif level >= 25:
+              numlimit = 10000 #set max value of number
+              questions = 5
+              timeout = 120 #set timelimit to 120secs
+          elif level >= 12:
+              numlimit = 1000 #set max value of number
+              questions = 5
+              timeout = 90 #set timelimit to 90secs
+          elif level >= 5:
+              questions = 5
+              chance = 3 #set chance to 1 in 3 when level reached 5
+          elif level >= 4:
+              numlimit = 100
+              questions = 5 #set max no of questions(for all levels 4 and above)
+              timeout = 45 #set timelimit to 45secs
+          else:
+              questions = level #for levels below 4, number of questions = level
+      
+          #OPERATIONS
+          if level >= 19:
+              operations = 6 #allow power for levels 19 and above
+          elif level >= 15:
+              operations = 5 #allow modulus for levels 15 and above
+          elif level >= 11:
+              operations = 4 #allow division for levels 11 and above
+          elif level >= 7:
+              operations = 3 #allow multiplication for levels 7 and above
+          score = 0
+          print("Level {}".format(level)) #Display level(change to visual in pygame)
+          startTime = time.time() #get current time 
+          endTime = time.time() + timeout #get future stop time
+          print("You have {} seconds".format(timeout)) #let player know how much time they have
+          answer = 99999999999999 #to continue the equations loop, set ans > 99999999
+          if level % 4 != 0:
+              for i in range(questions): #loops for number of questions in that level(Maybe change to till time runs out)
+                  print("QUESTION {} of {} : Level {}".format(i + 1,questions,level)) #let player know how many more questions to go/done
+                  #intitalise operations first, for standard odds of appearing in equations
+                  operations1 = random.randint(1,operations) #used to decide operator in equation
+                  operations2 = random.randint(1,6) #for second operator in equation
+                  operations3 = random.randint(1,6) #for third operator in equation
+                  while answer > 99999999 or answer < -99999999 or decimals > 5: #to eliminate big numbers for answers
+                      equation_valid = False
+                      while equation_valid == False:
+  
+                          #NUMBERS
+                          num1 = random.randint(numstart,numlimit) #gets random number of a value >= numstart and <= numlimit
+                          num2 = random.randint(numstart,numlimit) #gets random number of a value >= numstart and <= numlimit
+                          #NEGATIVE NUMBERS
+                          negative1 = random.randint(0,chance) #to have random negative numbers
+                          negative2 = random.randint(0,chance) #to have random negative numbers
+                          if level >= 3:
+                              if negative1 == 0:
+                                  num1 = -abs(num1) #converts numbers to negative counterparts
+                              if negative2 == 0:
+                                  num2 = -abs(num2) #converts numbers to negative counterparts
+  
+                          #OPERATIONS--------------
+                          #operator
+                          if operations1 == 1:
+                              operator = "+"
+                          elif operations1 == 2:
+                              operator = "-"
+                          elif operations1 == 3:
+                              operator = "x"
+                          elif operations1 == 4:
+                              operator = "/"
+                          elif operations1 == 5:
+                              operator = "%"
+                          else:
+                              operator = "**"
+                          equation = ("{} {} {}".format(num1,operator,num2)) #initialising equation
+
+                          #ANSWER EVALUATION 
+                          try:
+                              answer = eval(equation.replace("x","*")) #Considering x is used for * (multiply)
+                              if isinstance(answer,(float,int)):
+                                  number = str(answer).split(".")
+                                  if len(number) == 1:
+                                      decimals = 0
+                                  else:
+                                      decimals = len(number[1])
+                              break
+                          except:
+                              print("Failed")
+                              pass
+                            
+                  #CHECKING OF RESPONSE AND TIME LIMIT + stream --------------------------------
+                  print(equation) #for user to see(change to pygame graphics later
+                  answer = float(answer) #add the decimal places and 0
+                  if isinstance(answer,(float,int)):
+                    number = str(answer).split(".")
+                    decimals = len(number[1]) #get decimal places
+                  timeleft = endTime - time.time() #future end time - current time
+                  if timeleft <= 0: #if there is still time
+                            print("TIMES UP!,1") #lets player know how much time they have left
+                            mistakes += 1 #records mistakes
+                            print("Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
+                            break
+                  print("Enter Answer:") #get input for response
+                  rlist, wlist, xlist = select([sys.stdin], [], [], timeout) #keyboard input, timeout
+                  response = "" #initialise response
+                  for s in rlist:
+                          if s == sys.stdin:
+                              timeleft = endTime - time.time() #future end time - current time
+                              if timeleft > 0: #if there is still time
+                                  print("You have "+str(timeleft)+"s left.") #lets player know how much time they have left
+                              else: #timeout(no more time)
+                                  print("TIMES UP!") #notify player that time is out
+                                  break 
+                              response = sys.stdin.readline() #reads stream(rlist)
+                              response = response[0:-1] #Gets rid of "ENTER" at end of stream
+                  if timeleft <= 0 and i != questions-1: #timeout(no more time) exceptions is for last question         
+                      print("TIMES UP!,2") #notify player that time is out
+                      mistakes += 1 #records mistakes
+                      print("Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
+                      break 
+                  if response == "QUIT": #check if response is "QUIT"
+                      QUIT = True #set QUIT to True, game ends, no lives or score will be added, breaks from game loop
+                      #answer = 1 #set answer to 1
+                      break #break from equations loop
+                    
+                  #CHECKING of response(determine if response is correct or not)
+                  count = 0 #reinitialise count(number of integers/floats in response)
+                  numvalues = []#numbers in response
+                  correct = False #initialise correct
+                  correct_deci = False #initialise correct_deci
+                  Entered = response.split(" ") #split response by spaces
+                  for i in Entered: 
+                    i2 = i.replace(".","1") #replace "." with "1"
+                    i3 = i2.replace("-","1") #replace "-" with "1 "
+                    if i3.isdigit() and i2[-1] != "-" and i[-1] != ".": #test if i3 is all digits
+                        count += 1
+                        numvalues.append(i)
+                  if count == 1:
+                                try: #to check responses WITH decimal places
+                                    decimals2 = numvalues[0].split(".") #to get number of decimal places
+                                    answer2 = str(answer) + "0"*(len(decimals2[1])-(decimals)) #answer = answer + decimal place 0 , -decimals for same decimal places
+                                    
+                                    if str(numvalues[0]) == str(answer2): #checks if response is correct
+                                        print("CORRECT!") #let player know answer is correct
+                                        score += 1 #add to score
+                                        total_score += 1 #add to total score
+                                        correct = True #change correct to True
+                                        correct_deci = True #change correct_deci to True
+                                    elif numvalues[0].startswith("-") and answer == 0: #for answer equal to ZERO
+                                      answer2 = "-" + answer2
+                                      if str(numvalues[0]) == str(answer2):
+                                        print("CORRECT!") #let player know answer is correct
+                                        score += 1 #add to score
+                                        total_score += 1 #add to total score
+                                        correct = True #change correct to True
+                                        correct_deci = True #change correct_deci to True
+                                except:
+                                      try: #to check responses with NO decimal places
+                                          if float(numvalues[0]) == answer:
+                                            print("CORRECT!") #let player know answer is correct
+                                            score += 1 #add to score
+                                            total_score += 1 #add to total score
+                                            correct = True #change correct to True
+                                      except:
+                                            pass
+                  if correct == True: #if response entered is correct, pass, score has already been updated
+                      pass
+                  else: #if incorrect answer is entered into stream
+                      mistakes += 1 #records mistakes
+                      print("WRONG! Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
+                  answer = 99999999999999 #to continue the equations loop, set ans > 99999999
+              if QUIT != True: #checks if QUIT is True, if True no action is taken
+                  if score >= questions - 1 and level > 1:
+                      level += 1 #if required score is met, increase level(except level 1)
+                  elif score == questions:
+                      level += 1 #increase level for level 1
+                  else:
+                      lives -= 1 #deduct lives
+                      print("ONE LIVE DEDUCTED") #lets player know one live is lost
+                      print("{} LIVE LEFT".format(lives)) #lets player know how many lives they have left
+              print("") #to separate the questions and levels 
+          else: #for special boss levels(every three)
+              print("BOSS LEVEL-DOUBLE POINTS")
+              questions = 5 #for testing specific levels(if elif in front will be affected if progression is unnatural)
+              answer = 99999999999999 #to continue the equations loop, set ans > 99999999
+              for i in range(questions): #loops for number of questions in that level(Maybe change to till time runs out)
+                  print("QUESTION {} of {} : Level {}".format(i + 1,questions,level)) #let player know how many more questions to go/done
+                  #intitalise operations first, for standard odds of appearing in equations
+                  operations1 = random.randint(1,operations) #used to decide operator in equation
+                  operations2 = random.randint(1,6) #for second operator in equation
+                  operations3 = random.randint(1,6) #for third operator in equation
+                  while answer > 99999999 or answer < -99999999 or decimals > 5: #to eliminate big numbers for answers
+                      equation_valid = False
+                      while equation_valid == False:
+                          num1 = random.randint(numstart,numlimit) #gets random number of a value >= numstart and <= numlimit
+                          num2 = random.randint(numstart,numlimit) #gets random number of a value >= numstart and <= numlimit
+                          #NEGATIVES
+                          negative1 = random.randint(0,chance) #to have random negative numbers
+                          negative2 = random.randint(0,chance) #to have random negative numbers
+                          negative3 = random.randint(0,chance) #to have random negative numbers
+                          negative4 = random.randint(0,chance) #to have random negative numbers
+                          if negative1 == 0:
+                              num1 = -abs(num1) #converts numbers to negative counterparts
+                          if negative2 == 0:
+                              num2 = -abs(num2) #converts numbers to negative counterparts
+                          #OPERATIONS--------------
+                          #operator
+                          if operations1 == 1:
+                              operator = "+"
+                          elif operations1 == 2:
+                              operator = "-"
+                          elif operations1 == 3:
+                              operator = "x"
+                          elif operations1 == 4:
+                              operator = "/"
+                          elif operations1 == 5:
+                              operator = "%"
+                          else:
+                              operator = "**"
+                          equation = ("{} {} {}".format(num1,operator,num2)) #initialising equation
+                          try:
+                              answer = eval(equation.replace("x","*")) #Considering x is used for * (multiply)
+                              if isinstance(answer,(float,int)):
+                                  number = str(answer).split(".")
+                                  if len(number) == 1:
+                                      decimals = 0
+                                  else:
+                                      decimals = len(number[1])
+                              break
+                          except:
+                              print("Failed")
+                              pass
+                  #CHECKING OF RESPONSE AND TIME LIMIT + stream --------------------------------
+                  print(equation) #for user to see(change to pygame graphics later
+                  answer = float(answer) #add the decimal places and 0
+                  if isinstance(answer,(float,int)):
+                    number = str(answer).split(".")
+                    decimals = len(number[1]) #get decimal places
+                  timeleft = endTime - time.time() #future end time - current time
+                  if timeleft <= 0: #if there is still time
+                            print("TIMES UP!,1") #lets player know how much time they have left
+                            mistakes += 1 #records mistakes
+                            print("Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
+                            break
+                  print("Enter Answer:") #get input for response
+                  rlist, wlist, xlist = select([sys.stdin], [], [], timeout) #keyboard input, timeout
+                  response = "" #initialise response
+                  for s in rlist:
+                          if s == sys.stdin:
+                              timeleft = endTime - time.time() #future end time - current time
+                              if timeleft > 0: #if there is still time
+                                  print("You have "+str(timeleft)+"s left.") #lets player know how much time they have left
+                              else: #timeout(no more time)
+                                  print("TIMES UP!") #notify player that time is out
+                                  break 
+                              response = sys.stdin.readline() #reads stream(rlist)
+                              response = response[0:-1] #Gets rid of "ENTER" at end of stream
+                  if timeleft <= 0 and i != questions-1: #timeout(no more time) exceptions is for last question         
+                      print("TIMES UP!,2") #notify player that time is out
+                      mistakes += 1 #records mistakes
+                      print("Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
+                      break 
+                  if response == "QUIT": #check if response is "QUIT"
+                      QUIT = True #set QUIT to True, game ends, no lives or score will be added, breaks from game loop
+                      #answer = 1 #set answer to 1
+                      break #break from equations loop
+                    
+                  #CHECKING of response(determine if response is correct or not)
+                  count = 0 #reinitialise count(number of integers/floats in response)
+                  numvalues = []#numbers in response
+                  correct = False #initialise correct
+                  correct_deci = False #initialise correct_deci
+                  Entered = response.split(" ") #split response by spaces
+                  for i in Entered: 
+                    i2 = i.replace(".","1") #replace "." with "1"
+                    i3 = i2.replace("-","1") #replace "-" with "1 "
+                    if i3.isdigit() and i2[-1] != "-" and i[-1] != ".": #test if i3 is all digits
+                        count += 1
+                        numvalues.append(i)
+                  if count == 1:
+                                try: #to check responses WITH decimal places
+                                    decimals2 = numvalues[0].split(".") #to get number of decimal places
+                                    answer2 = str(answer) + "0"*(len(decimals2[1])-(decimals)) #answer = answer + decimal place 0 , -decimals for same decimal places
+                                    
+                                    if str(numvalues[0]) == str(answer2): #checks if response is correct
+                                        print("CORRECT!") #let player know answer is correct
+                                        score += 1 #add to score
+                                        total_score += 1 #add to total score
+                                        correct = True #change correct to True
+                                        correct_deci = True #change correct_deci to True
+                                    elif numvalues[0].startswith("-") and answer == 0: #for answer equal to ZERO
+                                      answer2 = "-" + answer2
+                                      if str(numvalues[0]) == str(answer2):
+                                        print("CORRECT!") #let player know answer is correct
+                                        score += 1 #add to score
+                                        total_score += 1 #add to total score
+                                        correct = True #change correct to True
+                                        correct_deci = True #change correct_deci to True
+                                except:
+                                      try: #to check responses with NO decimal places
+                                          if float(numvalues[0]) == answer:
+                                            print("CORRECT!") #let player know answer is correct
+                                            score += 1 #add to score
+                                            total_score += 1 #add to total score
+                                            correct = True #change correct to True
+                                      except:
+                                            pass
+                  if correct == True: #if response entered is correct, pass, score has already been updated
+                      pass
+                  else: #if incorrect answer is entered into stream
+                      mistakes += 1 #records mistakes
+                      print("WRONG! Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
+                  answer = 99999999999999 #to continue the equations loop, set ans > 99999999
+              if QUIT != True:
+                  if score >= questions - 1 and level > 1:
+                      level += 1 #if required score is met, increase level(except level 1)
+                  elif score == questions:
+                      level += 1 #increase level for level 1
+                  else:
+                      lives -= 1 #deduct lives
+                      print("ONE LIVE DEDUCTED")
+                      print("{} LIVE LEFT".format(lives))
+              print("") #to separate the questions and levels
+      #userstats(name, score and level reached), scoreboard updating
+      total_score -= mistakes
+      userstats = []
+      userstats.append(name) #update name
+      userstats.append(total_score) #update total_score
+      userstats.append(level) #update level reached
+      try:
+          print("check score")
+          if db["played"] == "YES":
+            db["times_played"] += 1
+          if total_score > db["score_top"][1]:
+            print("CONGRATULATIONS, YOU MADE IT TO 1st place on the LEADERBOARD for EASY MODE") #congratulate player, inform player of leaderboard position
+            db["score_fifth"] = db["score_fourth"]
+            db["score_fourth"] = db["score_third"]
+            db["score_third"] = db["score_second"]
+            db["score_second"] = db["score_top"]
+            db["score_top"] = userstats
+          elif total_score > db["score_second"][1]:
+            print("CONGRATULATIONS, YOU MADE IT TO 2nd place on the LEADERBOARD for EASY MODE") #congratulate player, inform player of leaderboard position
+            db["score_fifth"] = db["score_fourth"]
+            db["score_fourth"] = db["score_third"]
+            db["score_third"] = db["score_second"]
+            db["score_second"] = userstats
+          elif total_score > db["score_third"][1]:
+            print("CONGRATULATIONS, YOU MADE IT TO 3rd place on the LEADERBOARD for EASY MODE") #congratulate player, inform player of leaderboard position
+            db["score_fifth"] = db["score_fourth"]
+            db["score_fourth"] = db["score_third"]
+            db["score_third"] = userstats
+          elif total_score > db["score_fourth"][1]:
+            print("CONGRATULATIONS, YOU MADE IT TO 4th place on the LEADERBOARD for EASY MODE") #congratulate player, inform player of leaderboard position
+            db["score_fifth"] = db["score_fourth"]
+            db["score_fourth"] = userstats
+          elif total_score > db["score_fifth"][1]:
+            print("CONGRATULATIONS, YOU MADE IT TO 5th place on the LEADERBOARD for EASY MODE") #congratulate player, inform player of leaderboard position
+            db["score_fifth"] = userstats
+      except:
+          print("FIRST PLAYER!")
+          db["played"] = "YES"
+          db["times_played"] = 0
+          db["times_played"] += 1
+          db["score_top"] = ["-",0,"-"]
+          db["score_second"] = ["-",0,"-"]
+          db["score_third"] = ["-",0,"-"]
+          db["score_fourth"] = ["-",0,"-"]
+          db["score_fifth"] = ["-",0,"-"]
+          db["score_top"] = userstats
+      print("Times played(EASY MODE) is",db["times_played"])
+  elif play == "2": #for no calculator mode(does not need calculator)
+      #add level 1 graphics in pygame
+    print("For answer to equations with more than 5 decimal places, enter the answer up to 5.d.p")
+    while True:
+        if lives == 0 or QUIT == True:
+            print("[!-GAME OVER-!]")
+            if lives == 0:
+                print("DEATH by LACK of lives")
+            elif QUIT == True:
+                print("USER QUIT")
+            break
+        #add sprites graphics and hp bars plus countdown
+
+        #NUMLIMIT and CHANCES FOR NEGATIVE NUMBERS
+        if level >= 25:
+            numlimit = 100000 #set max value of number
+            timeout = 200 #timelimit = 200 seconds
+            questions = 5
+        elif level >= 23:
+            timeout = 150 #timelimit = 150 seconds
+            questions = 5
+        elif level >= 12:
+            numlimit = 10000 #set max value of number
+            timeout = 100 #timelimit = 100 seconds
+            questions = 5
+        elif level >= 7:
+            numlimit = 1000 #set number value to 1000 for levels 5 to 9
+            chance = 3 #set chance to 1 in 3 when level reached 5
+            questions = 5
+        elif level >= 4:
+            numlimit = 100
+            questions = 5 #set max no of questions(for all levels 4 and above)
+            timeout = 45 #timelimit = 45 seconds
+        else:
+            questions = level
+
+        #OPERATIONS
+        if level >= 19:
+            operations = 6 #allow power for levels 19 and above
+        elif level >= 15:
+            operations = 5 #allow modulus for levels 15 and above
+        elif level >= 11:
+            operations = 4 #allow division for levels 11 and above
+        elif level >= 7:
+            operations = 3 #allow multiplication for levels 7 and above
+        score = 0
+        print("Level {}".format(level)) #Display level(change to visual in pygame)
+        startTime = time.time() #get current time 
+        endTime = time.time() + timeout #get future stop time
+        print("You have {} seconds".format(timeout)) #let player know how much time they have
+        answer = 99999999999999 #to continue the equations loop, set ans > 99999999
+        if level % 4 != 0:
+            for i in range(questions): #loops for number of questions in that level(Maybe change to till time runs out)
+                print("QUESTION {} of {} : Level {}".format(i + 1,questions,level)) #let player know how many more questions to go/done
+                #intitalise operations first, for standard odds of appearing in equations
+                operations1 = random.randint(1,operations) #used to decide operator in equation
+                operations2 = random.randint(1,6) #for second operator in equation
+                operations3 = random.randint(1,6) #for third operator in equation
+                while answer > 99999999 or answer < -99999999: #to eliminate big numbers for answers
+                    equation_valid = False 
+                    while equation_valid == False:
+                        #NUMBERS
+                        num1 = random.randint(numstart,numlimit) #gets random number of a value >= numstart and <= numlimit
+                        num2 = random.randint(numstart,numlimit) #gets random number of a value >= numstart and <= numlimit
+                        num3 = random.randint(numstart,numlimit) #gets random number of a value >= numstart and <= numlimit
+                        num4 = random.randint(numstart,numlimit) #gets random number of a value >= numstart and <= numlimit
+                        #NEGATIVE NUMBERS
+                        negative1 = random.randint(0,chance) #to have random negative numbers
+                        negative2 = random.randint(0,chance) #to have random negative numbers
+                        negative3 = random.randint(0,chance) #to have random negative numbers
+                        negative4 = random.randint(0,chance) #to have random negative numbers
+                        if level >= 3:
+                            if negative1 == 0:
+                                num1 = -abs(num1) #converts numbers to negative counterparts
+                            if negative2 == 0:
+                                num2 = -abs(num2) #converts numbers to negative counterparts
+                        if level >= 23:
+                            if negative3 == 0:
+                                num3 = -abs(num3)
+                        if level >= 31:
+                            if negative4 == 0:
+                                num4 = -abs(num4)
+                        #OPERATIONS--------------
+                        #operator
+                        if operations1 == 1:
+                            operator = "+"
+                        elif operations1 == 2:
+                            operator = "-"
+                        elif operations1 == 3:
+                            operator = "x"
+                        elif operations1 == 4:
+                            operator = "/"
+                        elif operations1 == 5:
+                            operator = "%"
+                        else:
+                            operator = "**"
+                        #operator2
+                        if operations2 == 1:
+                            operator2 = "+"
+                        elif operations2 == 2:
+                            operator2 = "-"
+                        elif operations2 == 3:
+                            operator2 = "x"
+                        elif operations2 == 4:
+                            operator2 = "/"
+                        elif operations2 == 5:
+                            operator2 = "%"
+                        else:
+                            operator2 = "**"
+                        #operator3
+                        if operations3 == 1:
+                            operator3 = "+"
+                        elif operations3 == 2:
+                            operator3 = "-"
+                        elif operations3 == 3:
+                            operator3 = "x"
+                        elif operations3 == 4:
+                            operator3 = "/"
+                        elif operations3 == 5:
+                            operator3 = "%"
+                        else:
+                            operator3 = "**"
+                        if level >= 23 and level <= 30:
+                            if operations1 == 6 and operations2 == 6:
+                                    chance = random.randint(0,1)
+                                    if chance == 0:
+                                        operations1 = random.randint(1,5)
+                                        if operations1 == 1:
+                                            operator = "+"
+                                        elif operations1 == 2:
+                                            operator = "-"
+                                        elif operations1 == 3:
+                                            operator = "x"
+                                        elif operations1 == 4:
+                                            operator = "/"
+                                        elif operations1 == 5:
+                                            operator = "%"
+                                    elif chance == 1:
+                                        operations2 = random.randint(1,5)
+                                        if operations2 == 1:
+                                            operator2 = "+"
+                                        elif operations2 == 2:
+                                            operator2 = "-"
+                                        elif operations2 == 3:
+                                            operator2 = "x"
+                                        elif operations2 == 4:
+                                            operator2 = "/"
+                                        elif operations2 == 5:
+                                            operator2 = "%"
+                            if operations1 == 6:
+                                    if num2 > 5 or num2 < -5:
+                                        num2 = random.randint(-5,5)
+                                    if num1 > 10 or num1 < -10:
+                                        num1 = random.randint(-10,10)
+                                    if num1 == 0 and num2 <= -1:
+                                        while num1 != 0:
+                                            num1 = random.randint(-10,10)
+                            if operations2 == 6:
+                                    if num3 > 5 or num3 < -5:
+                                        num3 = random.randint(-5,5)
+                                    if num2 > 10 or num2 < -10:
+                                        num2 = random.randint(-10,10)
+                                    if num2 == 0 and num3 <= -1:
+                                        while num2 != 0:
+                                            num2 = random.randint(-10,10)
+                        if level >= 1 and level <= 22:
+                            equation = ("{} {} {}".format(num1,operator,num2)) #initialising equation
+                        elif level >= 23 and level <= 26:
+                            equation = ("{} {} {} {} {}".format(num1,operator,num2,operator2,num3)) #initialising equation
+                        elif level >= 27 and level <= 30:
+                            eqtype = random.randint(0,2)
+                            if eqtype == 0:
+                                equation = ("{} {} {} {} {}".format(num1,operator,num2,operator2,num3)) #initialising equation
+                            elif eqtype == 1:
+                                equation = ("({} {} {}) {} {}".format(num1,operator,num2,operator2,num3)) #initialising equation
+                            elif eqtype == 2:
+                                equation = ("{} {} ({} {} {})".format(num1,operator,num2,operator2,num3)) #initialising equation
+                        elif level >= 31:
+                            eqtype = random.randint(1,11)
+                            if eqtype == 1:
+                                equation = ("{} {} {} {} {} {} {}".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 2:
+                                equation = ("({} {} {}) {} {} {} {}".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 3:
+                                equation = ("({} {} {} {} {}) {} {}".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 4:
+                                equation = ("(({} {} {}) {} {}) {} {}".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 5:
+                                equation = ("({} {} ({} {} {})) {} {}".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 6:
+                                equation = ("{} {} {} {} ({} {} {})".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 7:
+                                equation = ("{} {} ({} {} {} {} {})".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 8:
+                                equation = ("{} {} ({} {} ({} {} {}))".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 9:
+                                equation = ("{} {} (({} {} {}) {} {})".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 10:
+                                equation = ("({} {} {}) {} ({} {} {})".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 11:
+                                equation = ("{} {} ({} {} {}) {} {}".format(num1,operator,num2,operator2,num3,operator3,num4))
+                        try:
+                            answer = eval(equation.replace("x","*")) #Considering x is used for * (multiply)
+                            if isinstance(answer,(float,int)):
+                                number = str(answer).split(".")
+                                if len(number) == 1:
+                                    decimals = 0
+                                else:
+                                    decimals = len(number[1])
+                            break
+                        except:
+                            print("Failed")
+                            pass
+                #CHECKING OF RESPONSE AND TIME LIMIT + stream --------------------------------
+                print(equation) #for user to see(change to pygame graphics later
+                answer = float(answer) #add the decimal places and 0
+                if isinstance(answer,(float,int)):
+                  number = str(answer).split(".")
+                  decimals = len(number[1]) #get decimal places
+                  if decimals > 5:
+                    number1 = number[1][0:5]
+                    answer2 = number[0] + "." + number1
+                    answer = float(answer2)
+                    decimals = len(number1)
+                timeleft = endTime - time.time() #future end time - current time
+                if timeleft <= 0: #if there is still time
+                          print("TIMES UP!,1") #lets player know how much time they have left
+                          mistakes += 1 #records mistakes
+                          print("Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
+                          break
+                print("Enter Answer:") #get input for response
+                rlist, wlist, xlist = select([sys.stdin], [], [], timeout) #keyboard input, timeout
+                response = "" #initialise response
+                for s in rlist:
+                        if s == sys.stdin:
+                            timeleft = endTime - time.time() #future end time - current time
+                            if timeleft > 0: #if there is still time
+                                print("You have "+str(timeleft)+"s left.") #lets player know how much time they have left
+                            else: #timeout(no more time)
+                                print("TIMES UP!") #notify player that time is out
+                                break 
+                            response = sys.stdin.readline() #reads stream(rlist)
+                            response = response[0:-1] #Gets rid of "ENTER" at end of stream
+                if timeleft <= 0 and i != questions-1: #timeout(no more time) exceptions is for last question
+                    print("TIMES UP!,2") #notify player that time is out
+                    mistakes += 1 #records mistakes
+                    print("Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
+                    break 
+                if response == "QUIT": #check if response is "QUIT"
+                    QUIT = True #set QUIT to True, game ends, no lives or score will be added, breaks from game loop
+                    #answer = 1 #set answer to 1
+                    break #break from equations loop
+                    
+                #CHECKING of response(determine if response is correct or not)
+                count = 0 #reinitialise count(number of integers/floats in response)
+                numvalues = []#numbers in response
+                correct = False #initialise correct
+                correct_deci = False #initialise correct_deci
+                Entered = response.split(" ") #split response by spaces
+                for i in Entered: 
+                  i2 = i.replace(".","1") #replace "." with "1"
+                  i3 = i2.replace("-","1") #replace "-" with "1 "
+                  if i3.isdigit() and i2[-1] != "-" and i[-1] != ".": #test if i3 is all digits
+                      count += 1
+                      numvalues.append(i)
+                if count == 1:
+                              try: #to check responses WITH decimal places
+                                  decimals2 = numvalues[0].split(".") #to get number of decimal places
+                                  answer2 = str(answer) + "0"*(len(decimals2[1])-(decimals)) #answer = answer + decimal place 0 , -decimals for same decimal places
+                                    
+                                  if str(numvalues[0]) == str(answer2): #checks if response is correct
+                                      print("CORRECT!") #let player know answer is correct
+                                      score += 1 #add to score
+                                      total_score += 1 #add to total score
+                                      correct = True #change correct to True
+                                      correct_deci = True #change correct_deci to True
+                                  elif numvalues[0].startswith("-") and answer == 0: #for answer equal to ZERO
+                                    answer2 = "-" + answer2
+                                    if str(numvalues[0]) == str(answer2):
+                                      print("CORRECT!") #let player know answer is correct
+                                      score += 1 #add to score
+                                      total_score += 1 #add to total score
+                                      correct = True #change correct to True
+                                      correct_deci = True #change correct_deci to True
+                              except:
+                                    try: #to check responses with NO decimal places
+                                        if float(numvalues[0]) == answer:
+                                          print("CORRECT!") #let player know answer is correct
+                                          score += 1 #add to score
+                                          total_score += 1 #add to total score
+                                          correct = True #change correct to True
+                                    except:
+                                          pass
+                if correct == True: #if response entered is correct, pass, score has already been updated
+                    pass
+                else: #if incorrect answer is entered into stream
+                    mistakes += 1 #records mistakes
+                    print("WRONG! Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
+                answer = 99999999999999 #to continue the equations loop, set ans > 99999999
+            if QUIT != True:
+                if score >= questions - 1 and level > 1:
+                    level += 1 #if required score is met, increase level(except level 1)
+                elif score == questions:
+                    level += 1 #increase level for level 1
+                else:
+                    lives -= 1 #deduct lives
+                    print("ONE LIVE DEDUCTED")
+                    print("{} LIVE LEFT".format(lives))
+            print("") #to separate the questions and levels
+        else: #for special boss levels(every three)
+            print("BOSS LEVEL-DOUBLE POINTS")
+            questions = 5 #for testing specific levels(if elif in front will be affected if progression is unnatural)
+            answer = 99999999999999 #to continue the equations loop, set ans > 99999999  
+            for i in range(questions): #loops for number of questions in that level(Maybe change to till time runs out)
+                print("QUESTION {} of {} : Level {}".format(i + 1,questions,level)) #let player know how many more questions to go/done
+                #intitalise operations first, for standard odds of appearing in equations
+                operations1 = random.randint(1,operations) #used to decide operator in equation
+                operations2 = random.randint(1,6) #for second operator in equation
+                operations3 = random.randint(1,6) #for third operator in equation
+                while answer > 99999999 or answer < -99999999: #to eliminate big numbers for answers
+                    equation_valid = False
+                    while equation_valid == False:
+                        num1 = random.randint(numstart,numlimit) #gets random number of a value >= numstart and <= numlimit
+                        num2 = random.randint(numstart,numlimit) #gets random number of a value >= numstart and <= numlimit
+                        num3 = random.randint(numstart,numlimit) #gets random number of a value >= numstart and <= numlimit
+                        num4 = random.randint(numstart,numlimit) #gets random number of a value >= numstart and <= numlimit
+                        #NEGATIVES
+                        negative1 = random.randint(0,chance) #to have random negative numbers
+                        negative2 = random.randint(0,chance) #to have random negative numbers
+                        negative3 = random.randint(0,chance) #to have random negative numbers
+                        negative4 = random.randint(0,chance) #to have random negative numbers
+                        if negative1 == 0:
+                            num1 = -abs(num1) #converts numbers to negative counterparts
+                        if negative2 == 0:
+                            num2 = -abs(num2) #converts numbers to negative counterparts
+                        if negative3 == 0:
+                            num3 = -abs(num3) #converts numbers to negative counterparts
+                        if negative4 == 0:
+                            num4 = -abs(num4) #converts numbers to negative counterparts
+                        #OPERATIONS--------------
+                        #operator
+                        if operations1 == 1:
+                            operator = "+"
+                        elif operations1 == 2:
+                            operator = "-"
+                        elif operations1 == 3:
+                            operator = "x"
+                        elif operations1 == 4:
+                            operator = "/"
+                        elif operations1 == 5:
+                            operator = "%"
+                        else:
+                            operator = "**"
+                        #operator2
+                        if operations2 == 1:
+                            operator2 = "+"
+                        elif operations2 == 2:
+                            operator2 = "-"
+                        elif operations2 == 3:
+                            operator2 = "x"
+                        elif operations2 == 4:
+                            operator2 = "/"
+                        elif operations2 == 5:
+                            operator2 = "%"
+                        else:
+                            operator2 = "**"
+                        #operator3
+                        if operations3 == 1:
+                            operator3 = "+"
+                        elif operations3 == 2:
+                            operator3 = "-"
+                        elif operations3 == 3:
+                            operator3 = "x"
+                        elif operations3 == 4:
+                            operator3 = "/"
+                        elif operations3 == 5:
+                            operator3 = "%"
+                        else:
+                            operator3 = "**"
+                        if level >= 24: #eliminates double power for levels 24 and above
+                            if operations1 == 6 and operations2 == 6:
+                                chance = random.randint(0,1)
+                                if chance == 0:
+                                    operations1 = random.randint(1,5)
+                                    if operations1 == 1:
+                                        operator = "+"
+                                    elif operations1 == 2:
+                                        operator = "-"
+                                    elif operations1 == 3:
+                                        operator = "x"
+                                    elif operations1 == 4:
+                                        operator = "/"
+                                    elif operations1 == 5:
+                                        operator = "%"
+                                elif chance == 1:
+                                    operations2 = random.randint(1,5)
+                                    if operations2 == 1:
+                                        operator2 = "+"
+                                    elif operations2 == 2:
+                                        operator2 = "-"
+                                    elif operations2 == 3:
+                                        operator2 = "x"
+                                    elif operations2 == 4:
+                                        operator2 = "/"
+                                    elif operations2 == 5:
+                                        operator2 = "%"
+                            if operations1 == 6:
+                                if num2 > 5 or num2 < -5:
+                                    num2 = random.randint(-5,5)
+                                if num1 > 10 or num1 < -10:
+                                    num1 = random.randint(-10,10)
+                                if num1 == 0 and num2 <= -1:
+                                    while num1 != 0:
+                                        num1 = random.randint(-10,10)
+                            if operations2 == 6:
+                                if num3 > 5 or num3 < -5:
+                                    num3 = random.randint(-5,5)
+                                if num2 > 10 or num2 < -10:
+                                    num2 = random.randint(-10,10)
+                                if num2 == 0 and num3 <= -1:
+                                    while num2 != 0:
+                                        num2 = random.randint(-10,10)
+                        if operations1 == 6:
+                                if num2 > 5 or num2 < -5:
+                                    num2 = random.randint(-5,5)
+                                if num1 > 10 or num1 < -10:
+                                    num1 = random.randint(-10,10)
+                                if num1 == 0 and num2 <= -1:
+                                    while num1 != 0:
+                                        num1 = random.randint(-10,10)
+                        if level >= 4 and level <= 20:#levels 4 to 20 have standard equations
+                            equation = ("{} {} {}".format(num1,operator,num2)) #initialising equation
+                        elif level == 24:
+                            equation = ("{} {} {} {} {}".format(num1,operator,num2,operator2,num3)) #initialising equation
+                        elif level == 28: #last edit here, edit code from here!!!!!!!!! (simply, reduce repeated initialisation1)
+                            eqtype = random.randint(0,2)
+                            if eqtype == 0:
+                                equation = ("{} {} {} {} {}".format(num1,operator,num2,operator2,num3)) #initialising equation
+                            elif eqtype == 1:
+                                equation = ("({} {} {}) {} {}".format(num1,operator,num2,operator2,num3)) #initialising equation
+                            elif eqtype == 2:
+                                equation = ("{} {} ({} {} {})".format(num1,operator,num2,operator2,num3)) #initialising equation
+                        elif level >= 32:
+                            eqtype = random.randint(1,11)
+                            if eqtype == 1:
+                                equation = ("{} {} {} {} {} {} {}".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 2:
+                                equation = ("({} {} {}) {} {} {} {}".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 3:
+                                equation = ("({} {} {} {} {}) {} {}".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 4:
+                                equation = ("(({} {} {}) {} {}) {} {}".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 5:
+                                equation = ("({} {} ({} {} {})) {} {}".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 6:
+                                equation = ("{} {} {} {} ({} {} {})".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 7:
+                                equation = ("{} {} ({} {} {} {} {})".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 8:
+                                equation = ("{} {} ({} {} ({} {} {}))".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 9:
+                                equation = ("{} {} (({} {} {}) {} {})".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 10:
+                                equation = ("({} {} {}) {} ({} {} {})".format(num1,operator,num2,operator2,num3,operator3,num4))
+                            elif eqtype == 11:
+                                equation = ("{} {} ({} {} {}) {} {}".format(num1,operator,num2,operator2,num3,operator3,num4))
+                        try:
+                            answer = eval(equation.replace("x","*")) #Considering x is used for * (multiply)
+                            if isinstance(answer,(float,int)):
+                                number = str(answer).split(".")
+                                if len(number) == 1:
+                                    decimals = 0
+                                else:
+                                    decimals = len(number[1])
+                            break
+                        except:
+                            print("FAILED")
+                            pass
+                #CHECKING OF RESPONSE AND TIME LIMIT + stream --------------------------------
+                print(equation) #for user to see(change to pygame graphics later
+                answer = float(answer) #add the decimal places and 0
+                if isinstance(answer,(float,int)):
+                  number = str(answer).split(".")
+                  decimals = len(number[1]) #get decimal places
+                  if decimals > 5:
+                    number1 = number[1][0:5]
+                    answer2 = number[0] + "." + number1
+                    answer = float(answer2)
+                    decimals = len(number1)
+                timeleft = endTime - time.time() #future end time - current time
+                if timeleft <= 0: #if there is still time
+                          print("TIMES UP!,1") #lets player know how much time they have left
+                          mistakes += 1 #records mistakes
+                          print("Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
+                          break
+                print("Enter Answer:") #get input for response
+                rlist, wlist, xlist = select([sys.stdin], [], [], timeout) #keyboard input, timeout
+                response = "" #initialise response
+                for s in rlist:
+                        if s == sys.stdin:
+                            timeleft = endTime - time.time() #future end time - current time
+                            if timeleft > 0: #if there is still time
+                                print("You have "+str(timeleft)+"s left.") #lets player know how much time they have left
+                            else: #timeout(no more time)
+                                print("TIMES UP!") #notify player that time is out
+                                break 
+                            response = sys.stdin.readline() #reads stream(rlist)
+                            response = response[0:-1] #Gets rid of "ENTER" at end of stream
+                if timeleft <= 0 and i != questions-1: #timeout(no more time) exceptions is for last question
+                    print("TIMES UP!,2") #notify player that time is out
+                    mistakes += 1 #records mistakes
+                    print("Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
+                    break 
+                if response == "QUIT": #check if response is "QUIT"
+                    QUIT = True #set QUIT to True, game ends, no lives or score will be added, breaks from game loop
+                    #answer = 1 #set answer to 1
+                    break #break from equations loop
+                    
+                #CHECKING of response(determine if response is correct or not)
+                count = 0 #reinitialise count(number of integers/floats in response)
+                numvalues = []#numbers in response
+                correct = False #initialise correct
+                correct_deci = False #initialise correct_deci
+                Entered = response.split(" ") #split response by spaces
+                for i in Entered: 
+                  i2 = i.replace(".","1") #replace "." with "1"
+                  i3 = i2.replace("-","1") #replace "-" with "1 "
+                  if i3.isdigit() and i2[-1] != "-" and i[-1] != ".": #test if i3 is all digits
+                      count += 1
+                      numvalues.append(i)
+                if count == 1:
+                              try: #to check responses WITH decimal places
+                                  decimals2 = numvalues[0].split(".") #to get number of decimal places
+                                  answer2 = str(answer) + "0"*(len(decimals2[1])-(decimals)) #answer = answer + decimal place 0 , -decimals for same decimal places
+                                    
+                                  if str(numvalues[0]) == str(answer2): #checks if response is correct
+                                      print("CORRECT!") #let player know answer is correct
+                                      score += 1 #add to score
+                                      total_score += 1 #add to total score
+                                      correct = True #change correct to True
+                                      correct_deci = True #change correct_deci to True
+                                  elif numvalues[0].startswith("-") and answer == 0: #for answer equal to ZERO
+                                    answer2 = "-" + answer2
+                                    if str(numvalues[0]) == str(answer2):
+                                      print("CORRECT!") #let player know answer is correct
+                                      score += 1 #add to score
+                                      total_score += 1 #add to total score
+                                      correct = True #change correct to True
+                                      correct_deci = True #change correct_deci to True
+                              except:
+                                    try: #to check responses with NO decimal places
+                                        if float(numvalues[0]) == answer:
+                                          print("CORRECT!") #let player know answer is correct
+                                          score += 1 #add to score
+                                          total_score += 1 #add to total score
+                                          correct = True #change correct to True
+                                    except:
+                                          pass
+                if correct == True: #if response entered is correct, pass, score has already been updated
+                    pass
+                else: #if incorrect answer is entered into stream
+                    mistakes += 1 #records mistakes
+                    print("WRONG! Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
+                answer = 99999999999999 #to continue the equations loop, set ans > 99999999
+            if QUIT != True:
+                if score >= questions - 1 and level > 1:
+                    level += 1 #if required score is met, increase level(except level 1)
+                elif score == questions:
+                    level += 1 #increase level for level 1
+                else:
+                    lives -= 1 #deduct lives
+                    print("ONE LIVE DEDUCTED")
+                    print("{} LIVE LEFT".format(lives))
+            print("") #to separate the questions and levels    
+    #userstats(name, score and level reached), scoreboard updating
+    total_score -= mistakes
+    userstats = []
+    userstats.append(name) #update name
+    userstats.append(total_score) #update total_score
+    userstats.append(level) #update level reached
+    try:
+        if db["played2"] == "YES":
+          db["times_played2"] += 1
+        if total_score > db["score_top2"][1]:
+          print("CONGRATULATIONS, YOU MADE IT TO 1st place on the LEADERBOARD for HARD MODE") #congratulate player, inform player of leaderboard position
+          db["score_fifth2"] = db["score_fourth2"]
+          db["score_fourth2"] = db["score_third2"]
+          db["score_third2"] = db["score_second2"]
+          db["score_second2"] = db["score_top2"]
+          db["score_top2"] = userstats
+        elif total_score > db["score_second2"][1]:
+          print("CONGRATULATIONS, YOU MADE IT TO 2nd place on the LEADERBOARD for HARD MODE") #congratulate player, inform player of leaderboard position
+          db["score_fifth2"] = db["score_fourth2"]
+          db["score_fourth2"] = db["score_third2"]
+          db["score_third2"] = db["score_second2"]
+          db["score_second2"] = userstats
+        elif total_score > db["score_third2"][1]:
+          print("CONGRATULATIONS, YOU MADE IT TO 3rd place on the LEADERBOARD for HARD MODE") #congratulate player, inform player of leaderboard position
+          db["score_fifth2"] = db["score_fourth2"]
+          db["score_fourth2"] = db["score_third2"]
+          db["score_third2"] = userstats
+        elif total_score > db["score_fourth2"][1]:
+          print("CONGRATULATIONS, YOU MADE IT TO 4th place on the LEADERBOARD for HARD MODE") #congratulate player, inform player of leaderboard position
+          db["score_fifth2"] = db["score_fourth2"]
+          db["score_fourth2"] = userstats
+        elif total_score > db["score_fifth2"][1]:
+          print("CONGRATULATIONS, YOU MADE IT TO 5th place on the LEADERBOARD for HARD MODE") #congratulate player, inform player of leaderboard position
+          db["score_fifth2"] = userstats
+    except:
+        print("FIRST PLAYER!")
+        db["PLAYERS"] = []
+        db["PLAYERS"].append(name) #add name to database
+        db["played2"] = "YES"
+        db["times_played2"] = 0
+        db["times_played2"] += 1
+        db["score_top2"] = ["-",0,"-"]
+        db["score_second2"] = ["-",0,"-"]
+        db["score_third2"] = ["-",0,"-"]
+        db["score_fourth2"] = ["-",0,"-"]
+        db["score_fifth2"] = ["-",0,"-"]
+        db["score_top2"] = userstats
+    print("Times played(HARD MODE) is",db["times_played2"])
+else:
+    print("ok.....")
+    name = "Your"
+
+#output
+if play == "1" or play == "2":
+  print("{}'s FINAL score is {}".format(name,total_score))
+  print("The amount of mistakes made is",mistakes)
+  print("Lives left is {}".format(lives))
+  print("Level reached {}".format(level))
+ 
+#output highscores and top players
+try:
+  print("") #separate output
+  print("-EASY MODE HIGHSCORES-")
+  highscores = pd.DataFrame([[db["score_top"][0],db["score_top"][1],db["score_top"][2]],[db["score_second"][0],db["score_second"][1],db["score_second"][2]], [db["score_third"][0],db["score_third"][1],db["score_third"][2]],[db["score_fourth"][0],db["score_fourth"][1],db["score_fourth"][2]],[db["score_fifth"][0],db["score_fifth"][1],db["score_fifth"][2]]],index=['1','2','3','4','5'],columns=['NAME','SCORE','LEVEL']) ## Using a list to make a dataframe ## Index defines the index, columns defines the column names
+  print(highscores)
+except:
+      pass
+try:
+  print("") #separate output
+  print("-HARD MODE HIGHSCORES-")
+  highscores2 = pd.DataFrame([[db["score_top2"][0],db["score_top2"][1],db["score_top2"][2]],[db["score_second2"][0],db["score_second2"][1],db["score_second2"][2]], [db["score_third2"][0],db["score_third2"][1],db["score_third2"][2]],[db["score_fourth2"][0],db["score_fourth2"][1],db["score_fourth2"][2]],[db["score_fifth2"][0],db["score_fifth2"][1],db["score_fifth2"][2]]],index=['1','2','3','4','5'],columns=['NAME','SCORE','LEVEL']) ## Using a list to make a dataframe ## Index defines the index, columns defines the column names
+  print(highscores2)
+except:
+      pass
+  
+#SYSTEM RESET(RESET SCOREBOARDS) commented out
+#del db["PLAYERS"]
+#del db["score_top"] 
+#del db["score_second"] 
+#del db["score_third"] 
+#del db["score_fourth"] 
+#del db["score_fifth"]
+#del db["times_played"]
+#del db["played"]
+#del db["score_top2"] 
+#del db["score_second2"] 
+#del db["score_third2"] 
+#del db["score_fourth2"] 
+#del db["score_fifth2"]
+#del db["times_played2"]
+#del db["played2"]
+#for i in db:
+  #print(i)
+#for i in db:
+  #print(db[i])
