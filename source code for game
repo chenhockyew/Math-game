@@ -8,7 +8,7 @@ import sys
 import time
 from select import select
 lives = 3 #initialises lives
-level = 32 #initialise level
+level = 1 #initialise level
 score = 0 #initialise score
 questions = level #level #number of equations to solve(based on level)
 numlimit = 10 * level #limit of number value in questions
