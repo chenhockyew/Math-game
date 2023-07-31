@@ -1,4 +1,3 @@
-#REMOVE REPEATED INITIALISATION!!!!!! #UPDATED!!!!!!!!
 #finished
 from replit import db
 import pandas as pd
@@ -18,7 +17,7 @@ total_score = 0 #final score(will be displayed)
 mistakes = 0 #mistakes made(will be deducted from total_score)
 chance = 5 #used to set percentage chance of negative numbers
 answer = 99999999999999 #initialise answer > 9999999999 for loop
-timeout = 30#initialise timelimit
+timeout = 30 #initialise timelimit
 name = ""
 QUIT = False #initialise QUIT to False, if True, game will end
 name_valid = False
@@ -32,11 +31,15 @@ if play == "1" or play == "2":
   #USERNAME LOOP
   while name_valid == False :
     name = input("ENTER A USERNAME: ")
+    namevalue = 0
     if name != "" :
         try:
             if name not in db["PLAYERS"]:
                 db["PLAYERS"].append(name) #add name to database
-                password = str(abs(int((((len(name)*11)-90)/2)*7))) #generate password
+                for i in name:
+                  namevalue += ord(i)
+                password = str(abs(int((((namevalue*7)-190)/6)*7))) #generate password
+                #correct password length
                 if len(str(password)) < 5:
                   password = password + "1"*(5-len(str(password)))
                 elif len(str(password)) > 5:
@@ -45,7 +48,10 @@ if play == "1" or play == "2":
                 break
             else:
                 key = input("Please enter password: ")
-                password = str(abs(int((((len(name)*11)-90)/2)*7)))
+                for i in name:
+                  namevalue += ord(i)
+                password = str(abs(int((((namevalue*7)-190)/6)*7))) #generate password
+                #correct password length
                 if len(str(password)) < 5:
                   password = password + "1"*(5-len(str(password)))
                 elif len(str(password)) > 5:
@@ -58,7 +64,7 @@ if play == "1" or play == "2":
         except:
               db["PLAYERS"] = []
               db["PLAYERS"].append(name) #add name to database
-              password = str(abs(int((((len(name)*11)-90)/2)*7))) #generate password
+              password = str(abs(int((((namevalue*7)-190)/6)*7))) #generate password
               if len(password) < 5:
                 password = password + "1"*(5-len(str(password)))
               elif len(password) > 5:
@@ -107,7 +113,7 @@ if play == "1" or play == "2":
               timeout = 45 #set timelimit to 45secs
           else:
               questions = level #for levels below 4, number of questions = level
-      
+            
           #OPERATIONS
           if level >= 19:
               operations = 6 #allow power for levels 19 and above
@@ -372,24 +378,24 @@ if play == "1" or play == "2":
                                     
                                     if str(numvalues[0]) == str(answer2): #checks if response is correct
                                         print("CORRECT!") #let player know answer is correct
-                                        score += 1 #add to score
-                                        total_score += 1 #add to total score
+                                        score += 2 #add to score
+                                        total_score += 2 #add to total score
                                         correct = True #change correct to True
                                         correct_deci = True #change correct_deci to True
                                     elif numvalues[0].startswith("-") and answer == 0: #for answer equal to ZERO
                                       answer2 = "-" + answer2
                                       if str(numvalues[0]) == str(answer2):
                                         print("CORRECT!") #let player know answer is correct
-                                        score += 1 #add to score
-                                        total_score += 1 #add to total score
+                                        score += 2 #add to score
+                                        total_score += 2 #add to total score
                                         correct = True #change correct to True
                                         correct_deci = True #change correct_deci to True
                                 except:
                                       try: #to check responses with NO decimal places
                                           if float(numvalues[0]) == answer:
                                             print("CORRECT!") #let player know answer is correct
-                                            score += 1 #add to score
-                                            total_score += 1 #add to total score
+                                            score += 2 #add to score
+                                            total_score += 2 #add to total score
                                             correct = True #change correct to True
                                       except:
                                             pass
@@ -416,8 +422,7 @@ if play == "1" or play == "2":
       userstats.append(total_score) #update total_score
       userstats.append(level) #update level reached
       try:
-          print("check score")
-          if db["played"] == "YES":
+          if db["played"] == "YES": #if game has been played before, db["played"] will exist
             db["times_played"] += 1
           if total_score > db["score_top"][1]:
             print("CONGRATULATIONS, YOU MADE IT TO 1st place on the LEADERBOARD for EASY MODE") #congratulate player, inform player of leaderboard position
@@ -993,24 +998,24 @@ if play == "1" or play == "2":
                                     
                                   if str(numvalues[0]) == str(answer2): #checks if response is correct
                                       print("CORRECT!") #let player know answer is correct
-                                      score += 1 #add to score
-                                      total_score += 1 #add to total score
+                                      score += 2 #add to score
+                                      total_score += 2 #add to total score
                                       correct = True #change correct to True
                                       correct_deci = True #change correct_deci to True
                                   elif numvalues[0].startswith("-") and answer == 0: #for answer equal to ZERO
                                     answer2 = "-" + answer2
                                     if str(numvalues[0]) == str(answer2):
                                       print("CORRECT!") #let player know answer is correct
-                                      score += 1 #add to score
-                                      total_score += 1 #add to total score
+                                      score += 2 #add to score
+                                      total_score += 2 #add to total score
                                       correct = True #change correct to True
                                       correct_deci = True #change correct_deci to True
                               except:
                                     try: #to check responses with NO decimal places
                                         if float(numvalues[0]) == answer:
                                           print("CORRECT!") #let player know answer is correct
-                                          score += 1 #add to score
-                                          total_score += 1 #add to total score
+                                          score += 2 #add to score
+                                          total_score += 2 #add to total score
                                           correct = True #change correct to True
                                     except:
                                           pass
@@ -1037,7 +1042,7 @@ if play == "1" or play == "2":
     userstats.append(total_score) #update total_score
     userstats.append(level) #update level reached
     try:
-        if db["played2"] == "YES":
+        if db["played2"] == "YES": #if game has been played before, db["played"] will exist
           db["times_played2"] += 1
         if total_score > db["score_top2"][1]:
           print("CONGRATULATIONS, YOU MADE IT TO 1st place on the LEADERBOARD for HARD MODE") #congratulate player, inform player of leaderboard position
@@ -1106,14 +1111,15 @@ except:
       pass
   
 #SYSTEM RESET(RESET SCOREBOARDS) commented out
-#del db["PLAYERS"]
-#del db["score_top"] 
-#del db["score_second"] 
-#del db["score_third"] 
-#del db["score_fourth"] 
-#del db["score_fifth"]
-#del db["times_played"]
-#del db["played"]
+'''
+del db["PLAYERS"]
+del db["score_top"] 
+del db["score_second"] 
+del db["score_third"] 
+del db["score_fourth"] 
+del db["score_fifth"]
+del db["times_played"]
+del db["played"]
 #del db["score_top2"] 
 #del db["score_second2"] 
 #del db["score_third2"] 
@@ -1125,3 +1131,4 @@ except:
   #print(i)
 #for i in db:
   #print(db[i])
+'''
