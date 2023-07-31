@@ -64,6 +64,8 @@ if play == "1" or play == "2":
         except:
               db["PLAYERS"] = []
               db["PLAYERS"].append(name) #add name to database
+              for i in name:
+                  namevalue += ord(i)
               password = str(abs(int((((namevalue*7)-190)/6)*7))) #generate password
               if len(password) < 5:
                 password = password + "1"*(5-len(str(password)))
@@ -1127,8 +1129,8 @@ del db["played"]
 #del db["score_fifth2"]
 #del db["times_played2"]
 #del db["played2"]
+'''
 #for i in db:
   #print(i)
 #for i in db:
   #print(db[i])
-'''
