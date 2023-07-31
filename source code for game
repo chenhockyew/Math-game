@@ -7,7 +7,7 @@ import sys
 import time
 from select import select
 lives = 3 #initialises lives
-level = 1 #initialise level
+level = 32 #initialise level
 score = 0 #initialise score
 questions = level #level #number of equations to solve(based on level)
 numlimit = 10 * level #limit of number value in questions
@@ -138,7 +138,7 @@ if play == "1" or play == "2":
                   operations1 = random.randint(1,operations) #used to decide operator in equation
                   operations2 = random.randint(1,6) #for second operator in equation
                   operations3 = random.randint(1,6) #for third operator in equation
-                  while answer > 99999999 or answer < -99999999 or decimals > 5: #to eliminate big numbers for answers
+                  while answer > 99999999 or answer < -99999999 or decimals > 5 or str(answer).count("e") >= 1: #to eliminate big numbers for answers
                       equation_valid = False
                       while equation_valid == False:
   
@@ -181,7 +181,6 @@ if play == "1" or play == "2":
                                       decimals = len(number[1])
                               break
                           except:
-                              print("Failed")
                               pass
                             
                   #CHECKING OF RESPONSE AND TIME LIMIT + stream --------------------------------
@@ -285,7 +284,7 @@ if play == "1" or play == "2":
                   operations1 = random.randint(1,operations) #used to decide operator in equation
                   operations2 = random.randint(1,6) #for second operator in equation
                   operations3 = random.randint(1,6) #for third operator in equation
-                  while answer > 99999999 or answer < -99999999 or decimals > 5: #to eliminate big numbers for answers
+                  while answer > 99999999 or answer < -99999999 or decimals > 5 or str(answer).count("e") >= 1: #to eliminate big numbers for answers
                       equation_valid = False
                       while equation_valid == False:
                           num1 = random.randint(numstart,numlimit) #gets random number of a value >= numstart and <= numlimit
@@ -324,7 +323,6 @@ if play == "1" or play == "2":
                                       decimals = len(number[1])
                               break
                           except:
-                              print("Failed")
                               pass
                   #CHECKING OF RESPONSE AND TIME LIMIT + stream --------------------------------
                   print(equation) #for user to see(change to pygame graphics later
@@ -521,7 +519,7 @@ if play == "1" or play == "2":
                 operations1 = random.randint(1,operations) #used to decide operator in equation
                 operations2 = random.randint(1,6) #for second operator in equation
                 operations3 = random.randint(1,6) #for third operator in equation
-                while answer > 99999999 or answer < -99999999: #to eliminate big numbers for answers
+                while answer > 99999999 or answer < -99999999 or str(answer).count("e") >= 1: #to eliminate big numbers for answers
                     equation_valid = False 
                     while equation_valid == False:
                         #NUMBERS
@@ -674,7 +672,6 @@ if play == "1" or play == "2":
                                     decimals = len(number[1])
                             break
                         except:
-                            print("Failed")
                             pass
                 #CHECKING OF RESPONSE AND TIME LIMIT + stream --------------------------------
                 print(equation) #for user to see(change to pygame graphics later
@@ -782,7 +779,7 @@ if play == "1" or play == "2":
                 operations1 = random.randint(1,operations) #used to decide operator in equation
                 operations2 = random.randint(1,6) #for second operator in equation
                 operations3 = random.randint(1,6) #for third operator in equation
-                while answer > 99999999 or answer < -99999999: #to eliminate big numbers for answers
+                while answer > 99999999 or answer < -99999999 or str(answer).count("e") >= 1: #to eliminate big numbers for answers
                     equation_valid = False
                     while equation_valid == False:
                         num1 = random.randint(numstart,numlimit) #gets random number of a value >= numstart and <= numlimit
@@ -939,7 +936,6 @@ if play == "1" or play == "2":
                                     decimals = len(number[1])
                             break
                         except:
-                            print("FAILED")
                             pass
                 #CHECKING OF RESPONSE AND TIME LIMIT + stream --------------------------------
                 print(equation) #for user to see(change to pygame graphics later
@@ -995,9 +991,8 @@ if play == "1" or play == "2":
                       numvalues.append(i)
                 if count == 1:
                               try: #to check responses WITH decimal places
-                                  decimals2 = numvalues[0].split(".") #to get number of decimal places
+                                  decimals2 = numvalues[0].split(".") #to get number of decimal places    
                                   answer2 = str(answer) + "0"*(len(decimals2[1])-(decimals)) #answer = answer + decimal place 0 , -decimals for same decimal places
-                                    
                                   if str(numvalues[0]) == str(answer2): #checks if response is correct
                                       print("CORRECT!") #let player know answer is correct
                                       score += 2 #add to score
