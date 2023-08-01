@@ -5,7 +5,7 @@ import time
 import random
 import sys
 import time
-from select import select
+import select
 lives = 3 #initialises lives
 level = 1 #initialise level
 score = 0 #initialise score
@@ -115,7 +115,7 @@ if play == "1" or play == "2":
               timeout = 45 #set timelimit to 45secs
           else:
               questions = level #for levels below 4, number of questions = level
-            
+
           #OPERATIONS
           if level >= 19:
               operations = 6 #allow power for levels 19 and above
@@ -131,6 +131,7 @@ if play == "1" or play == "2":
           endTime = time.time() + timeout #get future stop time
           print("You have {} seconds".format(timeout)) #let player know how much time they have
           answer = 99999999999999 #to continue the equations loop, set ans > 99999999
+          notime = False #reinitialise notime = False for every level
           if level % 4 != 0:
               for i in range(questions): #loops for number of questions in that level(Maybe change to till time runs out)
                   print("QUESTION {} of {} : Level {}".format(i + 1,questions,level)) #let player know how many more questions to go/done
@@ -190,29 +191,26 @@ if play == "1" or play == "2":
                     number = str(answer).split(".")
                     decimals = len(number[1]) #get decimal places
                   timeleft = endTime - time.time() #future end time - current time
-                  if timeleft <= 0: #if there is still time
-                            print("TIMES UP!,1") #lets player know how much time they have left
-                            mistakes += 1 #records mistakes
-                            print("Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
-                            break
-                  print("Enter Answer:") #get input for response
-                  rlist, wlist, xlist = select([sys.stdin], [], [], timeout) #keyboard input, timeout
-                  response = "" #initialise response
-                  for s in rlist:
-                          if s == sys.stdin:
-                              timeleft = endTime - time.time() #future end time - current time
-                              if timeleft > 0: #if there is still time
-                                  print("You have "+str(timeleft)+"s left.") #lets player know how much time they have left
-                              else: #timeout(no more time)
-                                  print("TIMES UP!") #notify player that time is out
-                                  break 
-                              response = sys.stdin.readline() #reads stream(rlist)
-                              response = response[0:-1] #Gets rid of "ENTER" at end of stream
-                  if timeleft <= 0 and i != questions-1: #timeout(no more time) exceptions is for last question         
-                      print("TIMES UP!,2") #notify player that time is out
-                      mistakes += 1 #records mistakes
+                  if timeleft <= 0:
+                    timeleft = 0
+                  print("Enter Answer: ")
+                  response = ""
+                  a, b, c = select.select([sys.stdin], [], [], timeleft) #stream, timelimit
+
+                  # Run if statement till the time is running
+                  if (a):
+                      # Read the input and print result
+                      response = sys.stdin.readline().strip() #remove "enter" at the end
+                      timeleft = endTime - time.time() #future end time - current time
+                      print("You have "+str(timeleft)+"s left.") #lets player know how much time they have left
+                  # Run else when time is over
+                  else:
+                    
+                      # Print the timeout statement
+                      print("\nTimes up,1")
+                      mistakes += 1
                       print("Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
-                      break 
+                      notime = True
                   if response == "QUIT": #check if response is "QUIT"
                       QUIT = True #set QUIT to True, game ends, no lives or score will be added, breaks from game loop
                       #answer = 1 #set answer to 1
@@ -260,6 +258,9 @@ if play == "1" or play == "2":
                                             pass
                   if correct == True: #if response entered is correct, pass, score has already been updated
                       pass
+                  elif notime == True: #if timeout, mistakes has already been updated
+                      break
+                      pass 
                   else: #if incorrect answer is entered into stream
                       mistakes += 1 #records mistakes
                       print("WRONG! Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
@@ -331,29 +332,26 @@ if play == "1" or play == "2":
                     number = str(answer).split(".")
                     decimals = len(number[1]) #get decimal places
                   timeleft = endTime - time.time() #future end time - current time
-                  if timeleft <= 0: #if there is still time
-                            print("TIMES UP!,1") #lets player know how much time they have left
-                            mistakes += 1 #records mistakes
-                            print("Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
-                            break
-                  print("Enter Answer:") #get input for response
-                  rlist, wlist, xlist = select([sys.stdin], [], [], timeout) #keyboard input, timeout
-                  response = "" #initialise response
-                  for s in rlist:
-                          if s == sys.stdin:
-                              timeleft = endTime - time.time() #future end time - current time
-                              if timeleft > 0: #if there is still time
-                                  print("You have "+str(timeleft)+"s left.") #lets player know how much time they have left
-                              else: #timeout(no more time)
-                                  print("TIMES UP!") #notify player that time is out
-                                  break 
-                              response = sys.stdin.readline() #reads stream(rlist)
-                              response = response[0:-1] #Gets rid of "ENTER" at end of stream
-                  if timeleft <= 0 and i != questions-1: #timeout(no more time) exceptions is for last question         
-                      print("TIMES UP!,2") #notify player that time is out
-                      mistakes += 1 #records mistakes
+                  if timeleft <= 0:
+                    timeleft = 0
+                  print("Enter Answer: ")
+                  response = ""
+                  a, b, c = select.select([sys.stdin], [], [], timeleft) #stream, timelimit
+
+                  # Run if statement till the time is running
+                  if (a):
+                      # Read the input and print result
+                      response = sys.stdin.readline().strip() #remove "enter" at the end
+                      timeleft = endTime - time.time() #future end time - current time
+                      print("You have "+str(timeleft)+"s left.") #lets player know how much time they have left
+                  # Run else when time is over
+                  else:
+                    
+                      # Print the timeout statement
+                      print("\nTimes up,1")
+                      mistakes += 1
                       print("Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
-                      break 
+                      notime = True
                   if response == "QUIT": #check if response is "QUIT"
                       QUIT = True #set QUIT to True, game ends, no lives or score will be added, breaks from game loop
                       #answer = 1 #set answer to 1
@@ -400,6 +398,9 @@ if play == "1" or play == "2":
                                       except:
                                             pass
                   if correct == True: #if response entered is correct, pass, score has already been updated
+                      pass
+                  elif notime == True: #if notime is True, mistakes has already been updated
+                      break
                       pass
                   else: #if incorrect answer is entered into stream
                       mistakes += 1 #records mistakes
@@ -512,6 +513,7 @@ if play == "1" or play == "2":
         endTime = time.time() + timeout #get future stop time
         print("You have {} seconds".format(timeout)) #let player know how much time they have
         answer = 99999999999999 #to continue the equations loop, set ans > 99999999
+        notime = False
         if level % 4 != 0:
             for i in range(questions): #loops for number of questions in that level(Maybe change to till time runs out)
                 print("QUESTION {} of {} : Level {}".format(i + 1,questions,level)) #let player know how many more questions to go/done
@@ -685,29 +687,26 @@ if play == "1" or play == "2":
                     answer = float(answer2)
                     decimals = len(number1)
                 timeleft = endTime - time.time() #future end time - current time
-                if timeleft <= 0: #if there is still time
-                          print("TIMES UP!,1") #lets player know how much time they have left
-                          mistakes += 1 #records mistakes
-                          print("Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
-                          break
-                print("Enter Answer:") #get input for response
-                rlist, wlist, xlist = select([sys.stdin], [], [], timeout) #keyboard input, timeout
-                response = "" #initialise response
-                for s in rlist:
-                        if s == sys.stdin:
-                            timeleft = endTime - time.time() #future end time - current time
-                            if timeleft > 0: #if there is still time
-                                print("You have "+str(timeleft)+"s left.") #lets player know how much time they have left
-                            else: #timeout(no more time)
-                                print("TIMES UP!") #notify player that time is out
-                                break 
-                            response = sys.stdin.readline() #reads stream(rlist)
-                            response = response[0:-1] #Gets rid of "ENTER" at end of stream
-                if timeleft <= 0 and i != questions-1: #timeout(no more time) exceptions is for last question
-                    print("TIMES UP!,2") #notify player that time is out
-                    mistakes += 1 #records mistakes
+                if timeleft <= 0:
+                  timeleft = 0
+                print("Enter Answer: ")
+                response = ""
+                a, b, c = select.select([sys.stdin], [], [], timeleft) #stream, timelimit
+
+                # Run if statement till the time is running
+                if (a):
+                    # Read the input and print result
+                    response = sys.stdin.readline().strip() #remove "enter" at the end
+                    timeleft = endTime - time.time() #future end time - current time
+                    print("You have "+str(timeleft)+"s left.") #lets player know how much time they have left
+                # Run else when time is over
+                else:
+                    
+                    # Print the timeout statement
+                    print("\nTimes up,1")
+                    mistakes += 1
                     print("Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
-                    break 
+                    notime = True
                 if response == "QUIT": #check if response is "QUIT"
                     QUIT = True #set QUIT to True, game ends, no lives or score will be added, breaks from game loop
                     #answer = 1 #set answer to 1
@@ -754,6 +753,9 @@ if play == "1" or play == "2":
                                     except:
                                           pass
                 if correct == True: #if response entered is correct, pass, score has already been updated
+                    pass
+                elif notime == True: #if notime == True, mistakes would already have been updated
+                    break
                     pass
                 else: #if incorrect answer is entered into stream
                     mistakes += 1 #records mistakes
@@ -949,29 +951,26 @@ if play == "1" or play == "2":
                     answer = float(answer2)
                     decimals = len(number1)
                 timeleft = endTime - time.time() #future end time - current time
-                if timeleft <= 0: #if there is still time
-                          print("TIMES UP!,1") #lets player know how much time they have left
-                          mistakes += 1 #records mistakes
-                          print("Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
-                          break
-                print("Enter Answer:") #get input for response
-                rlist, wlist, xlist = select([sys.stdin], [], [], timeout) #keyboard input, timeout
-                response = "" #initialise response
-                for s in rlist:
-                        if s == sys.stdin:
-                            timeleft = endTime - time.time() #future end time - current time
-                            if timeleft > 0: #if there is still time
-                                print("You have "+str(timeleft)+"s left.") #lets player know how much time they have left
-                            else: #timeout(no more time)
-                                print("TIMES UP!") #notify player that time is out
-                                break 
-                            response = sys.stdin.readline() #reads stream(rlist)
-                            response = response[0:-1] #Gets rid of "ENTER" at end of stream
-                if timeleft <= 0 and i != questions-1: #timeout(no more time) exceptions is for last question
-                    print("TIMES UP!,2") #notify player that time is out
-                    mistakes += 1 #records mistakes
+                if timeleft <= 0:
+                  timeleft = 0
+                print("Enter Answer: ")
+                response = ""
+                a, b, c = select.select([sys.stdin], [], [], timeleft) #stream, timelimit
+
+                # Run if statement till the time is running
+                if (a):
+                    # Read the input and print result
+                    response = sys.stdin.readline().strip() #remove "enter" at the end
+                    timeleft = endTime - time.time() #future end time - current time
+                    print("You have "+str(timeleft)+"s left.") #lets player know how much time they have left
+                # Run else when time is over
+                else:
+                    
+                    # Print the timeout statement
+                    print("\nTimes up,1")
+                    mistakes += 1
                     print("Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
-                    break 
+                    notime = True
                 if response == "QUIT": #check if response is "QUIT"
                     QUIT = True #set QUIT to True, game ends, no lives or score will be added, breaks from game loop
                     #answer = 1 #set answer to 1
@@ -993,20 +992,20 @@ if play == "1" or play == "2":
                               try: #to check responses WITH decimal places
                                   decimals2 = numvalues[0].split(".") #to get number of decimal places    
                                   answer2 = str(answer) + "0"*(len(decimals2[1])-(decimals)) #answer = answer + decimal place 0 , -decimals for same decimal places
-                                  if str(numvalues[0]) == str(answer2): #checks if response is correct
+                                  if str(numvalues[0]) == str(answer2): #checks if response is correct  
                                       print("CORRECT!") #let player know answer is correct
                                       score += 2 #add to score
                                       total_score += 2 #add to total score
                                       correct = True #change correct to True
                                       correct_deci = True #change correct_deci to True
                                   elif numvalues[0].startswith("-") and answer == 0: #for answer equal to ZERO
-                                    answer2 = "-" + answer2
-                                    if str(numvalues[0]) == str(answer2):
-                                      print("CORRECT!") #let player know answer is correct
-                                      score += 2 #add to score
-                                      total_score += 2 #add to total score
-                                      correct = True #change correct to True
-                                      correct_deci = True #change correct_deci to True
+                                      answer2 = "-" + answer2
+                                      if str(numvalues[0]) == str(answer2):
+                                        print("CORRECT!") #let player know answer is correct
+                                        score += 2 #add to score
+                                        total_score += 2 #add to total score
+                                        correct = True #change correct to True
+                                        correct_deci = True #change correct_deci to True
                               except:
                                     try: #to check responses with NO decimal places
                                         if float(numvalues[0]) == answer:
@@ -1017,6 +1016,9 @@ if play == "1" or play == "2":
                                     except:
                                           pass
                 if correct == True: #if response entered is correct, pass, score has already been updated
+                    pass
+                elif notime == True: #if notime == True, mistakes has already been updated
+                    break
                     pass
                 else: #if incorrect answer is entered into stream
                     mistakes += 1 #records mistakes
