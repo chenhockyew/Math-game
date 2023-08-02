@@ -268,8 +268,10 @@ if play == "1" or play == "2":
               if QUIT != True: #checks if QUIT is True, if True no action is taken
                   if score >= questions - 1 and level > 1:
                       level += 1 #if required score is met, increase level(except level 1)
+                      print("NEXT LEVEL") #level increased
                   elif score == questions:
                       level += 1 #increase level for level 1
+                      print("NEXT LEVEL") #level increased
                   else:
                       lives -= 1 #deduct lives
                       print("ONE LIVE DEDUCTED") #lets player know one live is lost
@@ -407,10 +409,9 @@ if play == "1" or play == "2":
                       print("WRONG! Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
                   answer = 99999999999999 #to continue the equations loop, set ans > 99999999
               if QUIT != True:
-                  if score >= questions - 1 and level > 1:
+                  if score >= 8: #Boss level have double scores
                       level += 1 #if required score is met, increase level(except level 1)
-                  elif score == questions:
-                      level += 1 #increase level for level 1
+                      print("NEXT LEVEL") #level increased
                   else:
                       lives -= 1 #deduct lives
                       print("ONE LIVE DEDUCTED")
@@ -764,8 +765,10 @@ if play == "1" or play == "2":
             if QUIT != True:
                 if score >= questions - 1 and level > 1:
                     level += 1 #if required score is met, increase level(except level 1)
+                    print("NEXT LEVEL") #level increased
                 elif score == questions:
                     level += 1 #increase level for level 1
+                    print("NEXT LEVEL") #level increased
                 else:
                     lives -= 1 #deduct lives
                     print("ONE LIVE DEDUCTED")
@@ -1025,10 +1028,9 @@ if play == "1" or play == "2":
                     print("WRONG! Correct answer is {}".format(answer)) #ouputs correct answer for user to learn or try again(to solve)later
                 answer = 99999999999999 #to continue the equations loop, set ans > 99999999
             if QUIT != True:
-                if score >= questions - 1 and level > 1:
+                if score >= 8: #Boss levels have double scores
                     level += 1 #if required score is met, increase level(except level 1)
-                elif score == questions:
-                    level += 1 #increase level for level 1
+                    print("NEXT LEVEL") #level increased
                 else:
                     lives -= 1 #deduct lives
                     print("ONE LIVE DEDUCTED")
