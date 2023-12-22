@@ -1,4 +1,4 @@
-#finished, sys stdin for input
+#finished, V1 of game, MATH BATTLE FINAL VER is the FINAL ONE
 from replit import db
 import pandas as pd
 import time
